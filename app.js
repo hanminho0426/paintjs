@@ -1,13 +1,25 @@
 const canvas = document.getElementById("jsCanvas");
 const ctx = canvas.getContext("2d");
+const colors = document.getElementsByClassName("jsColor");
+const range = document.getElementById("jsRange");
+const mode = document.getElementById("jsMode");
+const saveBtn = document.getElementById("jsSave");
 
-ctx.strokeStyle = "#2c2c2c"; //선 색지정
+
+const INIIAL_COLOR = "#2c2c2c"
+const CANVAS_SIZE = "700"
+
+canvas.width = CANVAS_SIZE //pixel modifier 픽셀사이즈 주기
+canvas.height = CANVAS_SIZE
+
+ctx.fillStyle = "white";
+ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+ctx.strokeStyle = INIIAL_COLOR; //선 색지정 기본색상 지정
+ctx.fillStyle = INIIAL_COLOR;
 ctx.lineWidth = 2.5; //선 두께 지정
 
-canvas.width = document.getElementsByClassName("canvas")[0].offsetWidth; //pixel modifier 픽셀사이즈 주기
-canvas.height = document.getElementsByClassName("canvas")[0].offsetHeight;
-
 let painting = false;
+let filling = false;
 
 function stopPainting() {
   painting = false;
@@ -29,8 +41,44 @@ function onMouseMove(event) {
   }
 }
 
-function onMouseDown(event) {
-  painting = true;
+function handleColorClick(event){
+  const color = event.target.style.backgroundColor;
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+}
+
+function handleRangeChange(event){
+  const size = event.target.value;
+  ctx.lineWidth = size; 
+}
+
+function handleModeClick(){
+ if(filling === true){
+   filling = false;
+   mode.innerText = "Fill"
+ }else {
+   filling = true;
+   mode.innerText = "paint";
+   ctx.fillStyle = ctx.strokeStyle;
+ }
+}
+
+function handleCanvasClick(){
+  if(filling){
+    ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  }
+}
+
+function handleCM(event){
+  event.preventDefault
+}
+
+function handleSaveClick() {
+  const image = canvas.toDataURL();
+  const link = document.createElement("a");
+  link.href = image;
+  link.download = "PaintJS";
+  link.click();
 }
 
 
@@ -39,4 +87,22 @@ if (canvas) {
   canvas.addEventListener("mousedown", startPainting);
   canvas.addEventListener("mouseup", stopPainting);
   canvas.addEventListener("mouseleave", stopPainting);
+  canvas.addEventListener("click", handleCanvasClick);
+  canvas.addEventListener("contextmenu", handleCM);
+}
+
+Array.from(colors).forEach(color => //배열을 대표하는 이름일뿐 다른 이름명을 사용하여도 상관없다.
+  color.addEventListener("click", handleColorClick)
+  );
+
+if(range) {
+  range.addEventListener("input", handleRangeChange);
+}
+
+if(mode){
+  mode.addEventListener("click", handleModeClick);
+}
+
+if (saveBtn) {
+  saveBtn.addEventListener("click", handleSaveClick);
 }
